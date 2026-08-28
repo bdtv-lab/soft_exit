@@ -1,10 +1,18 @@
 import mcdreforged as mcdr
+from mcdreforged.api.decorator import new_thread
+from mcdreforged.api.rcon import RconConnection
 
 from bdtv_node import state as node_state
 from bdtv_node.utils import pure_players, try_get_servers
 from online_player_api import get_player_list
 
 from . import state
+
+
+@new_thread
+def connect_rcon(rcon: RconConnection):
+    if not rcon.connect() and (logger := rcon.logger):
+        logger.warning(f"无法连接到 rcon {rcon.address}:{rcon.port}")
 
 
 def transfer_everyone_to_tmp_server_or_kick(server: mcdr.ServerInterface):
@@ -16,7 +24,7 @@ def transfer_everyone_to_tmp_server_or_kick(server: mcdr.ServerInterface):
     tmp_server = servers.get(state.tmp_server_slug, None)
     playing_players = pure_players(get_player_list())
 
-    if tmp_server is None:
+    if tmp_server is None or tmp_server == node_state.server_data["slug"]:
         for player in playing_players:
             server.execute(
                 f"/kick {player['nickname']} {f'临时服务器{state.tmp_server_slug}不可用'}"

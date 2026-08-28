@@ -9,6 +9,9 @@ CONFIG_FILE = "config.json"
 
 DEFAULT_CONFIG: Config = {
     "tmp_server_slug": "my-server",
+    "tmp_server_rcon_host": "127.0.0.1",
+    "tmp_server_rcon_port": 25575,
+    "tmp_server_rcon_password": ""
 }
 
 
