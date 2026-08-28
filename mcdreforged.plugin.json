@@ -1,0 +1,14 @@
+{
+    "id": "soft_exit",
+    "version": "0.1.0",
+    "name": "Soft exit",
+    "description": "在关闭服务器时将玩家转移至一个临时服务器",
+    "author": "peter2500zz",
+    "link": "https://gitea.mygo.plus/bdtv/server-management-client",
+    "dependencies": {
+        "mcdreforged": ">=2.0.0-alpha.1",
+        "online_player_api": ">=1.2.0",
+        "whitelist_api": ">=1.0.0",
+        "bdtv_node": ">=0.1.0"
+    }
+}
