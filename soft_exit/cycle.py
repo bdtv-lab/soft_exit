@@ -1,18 +1,10 @@
 import mcdreforged as mcdr
-from mcdreforged.api.decorator import new_thread
-from mcdreforged.api.rcon import RconConnection
 
 from bdtv_node import state as node_state
 from bdtv_node.utils import pure_players, try_get_servers
 from online_player_api import get_player_list
 
 from . import state
-
-
-@new_thread
-def connect_rcon(rcon: RconConnection):
-    if not rcon.connect() and (logger := rcon.logger):
-        logger.warning(f"无法连接到 rcon {rcon.address}:{rcon.port}")
 
 
 def transfer_everyone_to_tmp_server_or_kick(server: mcdr.ServerInterface):

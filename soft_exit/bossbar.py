@@ -18,31 +18,35 @@ def show_bar(server: mcdr.ServerInterface, id: str, target: str):
 def show_all_bar(server: mcdr.ServerInterface, target: str):
     if servers := try_get_servers(server):
         for slug in servers:
-            show_bar(server, slug, target)
+            show_bar(server, bar_id(slug), target)
 
 
 class Bossbar:
-    NAME = f"{node_state.server_data['nickname']} 启动状态"
-    ID = bar_id(node_state.server_data["slug"])
-
     def __init__(self, rcon: RconConnection) -> None:
+        self.NAME = f"{node_state.server_data['nickname']}启动状态"
+        self.ID = bar_id(node_state.server_data["slug"])
+
         self.rcon = rcon
-        self.exec(f"add {self.ID} {self.NAME}")
+        self.exec(f'add {self.ID} "{self.NAME}"')
 
     def exec(self, followed_cmd: str):
         try:
-            self.rcon.send_command(f"/bossbar {self.ID} {followed_cmd}")
+            print(f"sending! {f'/bossbar {followed_cmd}'}")
+            self.rcon.send_command(f"/bossbar {followed_cmd}")
         except ConnectionError:
             pass
 
+    def set(self, followed_cmd: str):
+        self.exec(f"set {self.ID} {followed_cmd}")
+
     def set_name(self, name: str):
-        self.exec(f"set name {name}")
+        self.set(f'name "{name}"')
 
     def set_visible(self, visible: bool):
-        self.exec(f"set visible {visible}")
+        self.set(f"visible {visible}")
 
     def set_max(self, max: int):
-        self.exec(f"set max {max}")
+        self.set(f"max {max}")
 
     def set_value(self, value: int):
-        self.exec(f"set value {value}")
+        self.set(f"value {value}")
