@@ -1,4 +1,13 @@
+from enum import Enum
 from typing import TypedDict
+
+
+class BossBarState(Enum):
+    Started = "Started"
+    Closing = "Closing"
+    Custom = "Custom"
+    Starting = "Starting"
+    Hide = "Hide"
 
 
 class Config(TypedDict):

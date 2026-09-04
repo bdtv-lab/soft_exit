@@ -1,12 +1,9 @@
 from types import MethodType
 
-from mcdreforged.api.rcon import RconConnection
-
-from .bossbar import Bossbar
+from .bossbar import RemoteBossbar
 
 is_waiting_for_up: bool = False
 enable: bool
-bossbar: Bossbar
+bossbar: RemoteBossbar
 tmp_server_slug: str
-tmp_server_rcon: RconConnection
 origin_stop: MethodType
