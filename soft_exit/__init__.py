@@ -8,7 +8,11 @@ from . import state
 from .bossbar import RemoteBossbar, show_all_bar
 from .config import load_or_init_config
 from .hook import hijack
-from .utils import transfer_everyone_to_tmp_server_or_kick
+from .utils import (
+    close_hide_bar_thread,
+    send_hide_bar_thread,
+    transfer_everyone_to_tmp_server_or_kick,
+)
 
 
 def on_stop_requested(self: MCDReforgedServer, forced: bool) -> bool:
@@ -37,6 +41,7 @@ def on_server_start(server: mcdr.PluginServerInterface):
         return
     if state.enable:
         state.bossbar.set_state(BossbarState.Starting)
+        send_hide_bar_thread()
 
 
 def on_server_startup(server: mcdr.PluginServerInterface):
@@ -87,5 +92,6 @@ def on_unload(server: mcdr.PluginServerInterface):
 
     server._mcdr_server.stop = state.origin_stop
     if state.enable:
+        close_hide_bar_thread()
         state.bossbar.close()
     logger.info("unhooked server.stop")

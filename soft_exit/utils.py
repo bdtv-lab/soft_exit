@@ -1,3 +1,5 @@
+import threading
+
 import mcdreforged as mcdr
 
 from bdtv_node import state as node_state
@@ -6,6 +8,7 @@ from online_player_api import get_player_list
 from soft_exit.types import BossbarState
 
 from . import state
+from .hide import hide_bar_thread
 
 
 def transfer_everyone_to_tmp_server_or_kick(server: mcdr.ServerInterface):
@@ -39,3 +42,21 @@ def set_custom_progress(value: int, name: str | None = None):
     if name is not None:
         state.bossbar.set_name(name)
     state.bossbar.set_value(value)
+
+
+def send_hide_bar_thread():
+    close_hide_bar_thread()
+
+    event = threading.Event()
+    thread = hide_bar_thread(event)  # type: ignore
+    state.stop_hide_bar_thread = (thread, event)
+
+
+def close_hide_bar_thread():
+    if state.stop_hide_bar_thread is None:
+        return
+
+    thread, event = state.stop_hide_bar_thread
+
+    event.set()
+    thread.join()

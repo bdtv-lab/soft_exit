@@ -30,8 +30,10 @@ class RemoteBossbar:
     def __init__(self, rcon: RconConnection) -> None:
         self.logger = state.logger
 
-        self.NAME = f"{node_state.server_data['nickname']}启动状态"
-        self.ID = bar_id(node_state.server_data["slug"])
+        self.NICKNAME = node_state.server_data["nickname"]
+        self.SLUG = node_state.server_data["slug"]
+        self.NAME = f"{self.NICKNAME}启动状态"
+        self.ID = bar_id(self.SLUG)
 
         self.rcon = rcon
         self.exec_bossbar(f'add {self.ID} "{self.NAME}"')
@@ -48,30 +50,30 @@ class RemoteBossbar:
                 # 显示关闭 BossBar
                 self.set_max(125)
                 self.set_value(0)
-                self.set_name(f"{node_state.server_data['nickname']}关闭中")
+                self.set_name(f"{self.NICKNAME}关闭中")
                 self.set_visible(True)
             case BossbarState.Custom:
                 # 交给自定义 bossbar 显示者看
                 self.set_value(0)
-                self.set_name(f"等待{node_state.server_data['nickname']}启动")
+                self.set_name(f"等待{self.NICKNAME}启动")
             case BossbarState.Starting:
                 self.set_value(100)
-                self.set_name(f"{node_state.server_data['nickname']}启动中")
+                self.set_name(f"{self.NICKNAME}启动中")
             case BossbarState.Started:
                 self.set_value(125)
-                self.set_name(f"{node_state.server_data['nickname']}启动完毕")
+                self.set_name(f"{self.NICKNAME}启动完毕")
                 self.sync_finished_message()
 
     def sync_finished_message(self):
         goto_command = f"!!goto {node_state.server_data['slug']}"
         rtext = mcdr.RTextList(
             mcdr.RText(
-                f"{node_state.server_data['nickname']}已启动，输入或者点击",
+                f"{self.NICKNAME}已启动，输入或者点击",
                 color=mcdr.RColor.green,
             ),
             mcdr.RText(goto_command, color=mcdr.RColor.aqua)
             .c(mcdr.RAction.suggest_command, goto_command)
-            .h(f"前往{node_state.server_data['nickname']}"),
+            .h(f"前往{self.NICKNAME}"),
             mcdr.RText("进入。", color=mcdr.RColor.green),
         )
 
@@ -98,7 +100,7 @@ class RemoteBossbar:
         self.set(f'name "{name}"')
 
     def set_visible(self, visible: bool):
-        self.set(f"visible {visible}")
+        self.set(f"visible {'true' if visible else 'false'}")
 
     def set_max(self, max: int):
         self.set(f"max {max}")
