@@ -7,8 +7,8 @@ from soft_exit.types import BossbarState
 from . import state
 from .bossbar import RemoteBossbar, show_all_bar
 from .config import load_or_init_config
-from .cycle import transfer_everyone_to_tmp_server_or_kick
 from .hook import hijack
+from .utils import transfer_everyone_to_tmp_server_or_kick
 
 
 def on_stop_requested(self: MCDReforgedServer, forced: bool) -> bool:

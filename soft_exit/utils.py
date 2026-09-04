@@ -3,6 +3,7 @@ import mcdreforged as mcdr
 from bdtv_node import state as node_state
 from bdtv_node.utils import pure_players, try_get_servers
 from online_player_api import get_player_list
+from soft_exit.types import BossbarState
 
 from . import state
 
@@ -27,3 +28,14 @@ def transfer_everyone_to_tmp_server_or_kick(server: mcdr.ServerInterface):
         server.execute(
             f"/transfer {tmp_server['address']} {tmp_server['port']} {player['nickname']}"
         )
+
+
+def set_custom_progress(value: int, name: str | None = None):
+    if not state.enable or not state.is_waiting_for_up:
+        return
+    if state.bossbar.state != BossbarState.Custom:
+        return
+    value = min(max(value, 0), 100)
+    if name is not None:
+        state.bossbar.set_name(name)
+    state.bossbar.set_value(value)
