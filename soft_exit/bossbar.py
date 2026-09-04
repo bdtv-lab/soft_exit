@@ -12,21 +12,37 @@ TEXT_JSON_FORMAT = mcdr.RTextJsonFormat.V_1_21_5
 
 
 def bar_id(slug: str) -> str:
+    """
+    返回由 slug 生成的 Bossbar ID
+    """
+
     return f"minecraft:{slug}-server-status"
 
 
 def show_bar(server: mcdr.ServerInterface, id: str, target: str):
+    """
+    为特定目标启动特定 ID 的 Bossbar，不会设置可见性
+    """
+
     server.execute(f"/bossbar set {id} players {target}")
 
 
 @new_thread
 def show_all_bar(server: mcdr.ServerInterface, target: str):
+    """
+    为目标启用本服务器的 Bossbar，不会设置可见性
+    """
+
     if servers := try_get_servers(server):
         for slug in servers:
             show_bar(server, bar_id(slug), target)
 
 
 class RemoteBossbar:
+    """
+    封装了自动重连 RCON 的 Bossbar 状态机
+    """
+
     def __init__(self, rcon: RconConnection) -> None:
         self.logger = state.logger
 
@@ -40,6 +56,10 @@ class RemoteBossbar:
         self.state = BossbarState.Hide
 
     def set_state(self, state: BossbarState):
+        """
+        改变 Bossbar 的状态
+        """
+
         self.state = state
 
         match self.state:
@@ -65,6 +85,10 @@ class RemoteBossbar:
                 self.sync_finished_message()
 
     def sync_finished_message(self):
+        """
+        广播服务器同步完毕的消息，并提供内嵌的 !!goto 命令
+        """
+
         goto_command = f"!!goto {node_state.server_data['slug']}"
         rtext = mcdr.RTextList(
             mcdr.RText(
@@ -81,9 +105,17 @@ class RemoteBossbar:
         self.exec(f"execute at @p run tellraw @a {component}")
 
     def close(self):
+        """
+        关闭内部维护的 RCON
+        """
+
         self.rcon.disconnect()
 
     def exec(self, cmd: str):
+        """
+        通过 RCON 执行任意命令
+        """
+
         try:
             self.logger.info(f"sending! {cmd}")
             self.rcon.send_command(cmd)
@@ -91,19 +123,43 @@ class RemoteBossbar:
             self.logger.error(f"failed to send: {e}")
 
     def exec_bossbar(self, followed_cmd: str):
+        """
+        通过 RCON 执行 Bossbar 命令
+        """
+
         self.exec(f"/bossbar {followed_cmd}")
 
     def set(self, followed_cmd: str):
+        """
+        执行 Bossbar 修改命令
+        """
+
         self.exec_bossbar(f"set {self.ID} {followed_cmd}")
 
     def set_name(self, name: str):
+        """
+        Bossbar 修改标题
+        """
+
         self.set(f'name "{name}"')
 
     def set_visible(self, visible: bool):
+        """
+        Bossbar 修改可见性
+        """
+
         self.set(f"visible {'true' if visible else 'false'}")
 
     def set_max(self, max: int):
+        """
+        Bossbar 修改最大值
+        """
+
         self.set(f"max {max}")
 
     def set_value(self, value: int):
+        """
+        Bossbar 修改数值
+        """
+
         self.set(f"value {value}")

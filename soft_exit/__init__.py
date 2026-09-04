@@ -16,6 +16,10 @@ from .utils import (
 
 
 def on_stop_requested(self: MCDReforgedServer, forced: bool) -> bool:
+    """
+    当服务器触发 stop 函数时，进入此 head hook 函数
+    """
+
     self.logger.info("hello there, i want to stop it!")
     if not self.is_server_running():
         self.logger.info("but it's not running!")
@@ -28,6 +32,10 @@ def on_stop_requested(self: MCDReforgedServer, forced: bool) -> bool:
 
 
 def on_server_stop(server: mcdr.PluginServerInterface, server_return_code: int):
+    """
+    服务器停止后，此回调函数触发
+    """
+
     if server_return_code != 0:
         server.logger.info("Is it a server crash?")
     if not state.is_waiting_for_up:
@@ -37,6 +45,10 @@ def on_server_stop(server: mcdr.PluginServerInterface, server_return_code: int):
 
 
 def on_server_start(server: mcdr.PluginServerInterface):
+    """
+    服务器启动时，此回调函数触发
+    """
+
     if not state.is_waiting_for_up:
         return
     if state.enable:
@@ -45,6 +57,10 @@ def on_server_start(server: mcdr.PluginServerInterface):
 
 
 def on_server_startup(server: mcdr.PluginServerInterface):
+    """
+    服务器启动成功时，此回调函数触发
+    """
+
     if not state.is_waiting_for_up:
         return
     if state.enable:
@@ -53,6 +69,10 @@ def on_server_startup(server: mcdr.PluginServerInterface):
 
 
 def on_player_joined(server: mcdr.PluginServerInterface, player: str, info: mcdr.Info):
+    """
+    玩家加入时，此回调函数触发
+    """
+
     show_all_bar(server, player)  # type: ignore
 
 
