@@ -8,6 +8,8 @@ from soft_exit.types import BossbarState
 
 from . import state
 
+TEXT_JSON_FORMAT = mcdr.RTextJsonFormat.V_1_21_5
+
 
 def bar_id(slug: str) -> str:
     return f"minecraft:{slug}-server-status"
@@ -26,13 +28,14 @@ def show_all_bar(server: mcdr.ServerInterface, target: str):
 
 class RemoteBossbar:
     def __init__(self, rcon: RconConnection) -> None:
+        self.logger = state.logger
+
         self.NAME = f"{node_state.server_data['nickname']}启动状态"
         self.ID = bar_id(node_state.server_data["slug"])
 
         self.rcon = rcon
-        self.exec(f'add {self.ID} "{self.NAME}"')
+        self.exec_bossbar(f'add {self.ID} "{self.NAME}"')
         self.state = BossbarState.Hide
-        self.logger = state.logger
 
     def set_state(self, state: BossbarState):
         self.state = state
@@ -57,19 +60,39 @@ class RemoteBossbar:
             case BossbarState.Started:
                 self.set_value(125)
                 self.set_name(f"{node_state.server_data['nickname']}启动完毕")
+                self.sync_finished_message()
+
+    def sync_finished_message(self):
+        goto_command = f"!!goto {node_state.server_data['slug']}"
+        rtext = mcdr.RTextList(
+            mcdr.RText(
+                f"{node_state.server_data['nickname']}已启动，输入或者点击",
+                color=mcdr.RColor.green,
+            ),
+            mcdr.RText(goto_command, color=mcdr.RColor.aqua)
+            .c(mcdr.RAction.suggest_command, goto_command)
+            .h(f"前往{node_state.server_data['nickname']}"),
+            mcdr.RText("进入。", color=mcdr.RColor.green),
+        )
+
+        component = rtext.to_json_str(json_format=TEXT_JSON_FORMAT)
+        self.exec(f"execute at @p run tellraw @a {component}")
 
     def close(self):
         self.rcon.disconnect()
 
-    def exec(self, followed_cmd: str):
+    def exec(self, cmd: str):
         try:
-            self.logger.info(f"sending! {f'/bossbar {followed_cmd}'}")
-            self.rcon.send_command(f"/bossbar {followed_cmd}")
+            self.logger.info(f"sending! {cmd}")
+            self.rcon.send_command(cmd)
         except ConnectionError as e:
             self.logger.error(f"failed to send: {e}")
 
+    def exec_bossbar(self, followed_cmd: str):
+        self.exec(f"/bossbar {followed_cmd}")
+
     def set(self, followed_cmd: str):
-        self.exec(f"set {self.ID} {followed_cmd}")
+        self.exec_bossbar(f"set {self.ID} {followed_cmd}")
 
     def set_name(self, name: str):
         self.set(f'name "{name}"')
