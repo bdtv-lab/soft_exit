@@ -2,7 +2,7 @@ from enum import Enum
 from typing import TypedDict
 
 
-class BossBarState(Enum):
+class BossbarState(Enum):
     Started = "Started"
     Closing = "Closing"
     Custom = "Custom"

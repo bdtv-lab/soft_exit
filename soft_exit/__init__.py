@@ -2,7 +2,7 @@ import mcdreforged as mcdr
 from mcdreforged.api.rcon import RconConnection
 from mcdreforged.mcdr_server import MCDReforgedServer
 
-from soft_exit.types import BossBarState
+from soft_exit.types import BossbarState
 
 from . import state
 from .bossbar import RemoteBossbar, show_all_bar
@@ -18,7 +18,7 @@ def on_stop_requested(self: MCDReforgedServer, forced: bool) -> bool:
     if state.enable:
         transfer_everyone_to_tmp_server_or_kick(self.basic_server_interface)
         state.is_waiting_for_up = True
-        state.bossbar.set_state(BossBarState.Closing)
+        state.bossbar.set_state(BossbarState.Closing)
 
     return state.origin_stop(forced)
 
@@ -29,21 +29,21 @@ def on_server_stop(server: mcdr.PluginServerInterface, server_return_code: int):
     if not state.is_waiting_for_up:
         return
     if state.enable:
-        state.bossbar.set_state(BossBarState.Custom)
+        state.bossbar.set_state(BossbarState.Custom)
 
 
 def on_server_start(server: mcdr.PluginServerInterface):
     if not state.is_waiting_for_up:
         return
     if state.enable:
-        state.bossbar.set_state(BossBarState.Starting)
+        state.bossbar.set_state(BossbarState.Starting)
 
 
 def on_server_startup(server: mcdr.PluginServerInterface):
     if not state.is_waiting_for_up:
         return
     if state.enable:
-        state.bossbar.set_state(BossBarState.Started)
+        state.bossbar.set_state(BossbarState.Started)
     state.is_waiting_for_up = False
 
 
@@ -52,7 +52,8 @@ def on_player_joined(server: mcdr.PluginServerInterface, player: str, info: mcdr
 
 
 def on_load(server: mcdr.PluginServerInterface, prev_module):
-    logger = server.logger
+    state.logger = server.logger
+    logger = state.logger
 
     # 加载配置文件
     config = load_or_init_config(server)
@@ -74,7 +75,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module):
         except ConnectionError:
             pass
         state.bossbar = RemoteBossbar(server_rcon)
-        state.bossbar.set_state(BossBarState.Hide)
+        state.bossbar.set_state(BossbarState.Hide)
 
     # 注入停止信号
     state.origin_stop = hijack(server._mcdr_server, "stop", on_stop_requested)
@@ -82,7 +83,7 @@ def on_load(server: mcdr.PluginServerInterface, prev_module):
 
 
 def on_unload(server: mcdr.PluginServerInterface):
-    logger = server.logger
+    logger = state.logger
 
     server._mcdr_server.stop = state.origin_stop
     if state.enable:

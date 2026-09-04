@@ -1,3 +1,4 @@
+from logging import Logger
 from types import MethodType
 
 from .bossbar import RemoteBossbar
@@ -7,3 +8,4 @@ enable: bool
 bossbar: RemoteBossbar
 tmp_server_slug: str
 origin_stop: MethodType
+logger: Logger

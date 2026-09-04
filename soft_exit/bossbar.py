@@ -4,7 +4,9 @@ from mcdreforged.api.rcon import RconConnection
 
 from bdtv_node import state as node_state
 from bdtv_node.utils import try_get_servers
-from soft_exit.types import BossBarState
+from soft_exit.types import BossbarState
+
+from . import state
 
 
 def bar_id(slug: str) -> str:
@@ -29,29 +31,31 @@ class RemoteBossbar:
 
         self.rcon = rcon
         self.exec(f'add {self.ID} "{self.NAME}"')
-        self.state = BossBarState.Hide
+        self.state = BossbarState.Hide
+        self.logger = state.logger
 
-    def set_state(self, state: BossBarState):
+    def set_state(self, state: BossbarState):
         self.state = state
 
         match self.state:
-            case BossBarState.Hide:
+            case BossbarState.Hide:
                 # 隐藏 BossBar
                 self.set_visible(False)
-            case BossBarState.Closing:
+            case BossbarState.Closing:
                 # 显示关闭 BossBar
-                self.set_max(100)
+                self.set_max(125)
                 self.set_value(0)
                 self.set_name(f"{node_state.server_data['nickname']}关闭中")
                 self.set_visible(True)
-            case BossBarState.Custom:
+            case BossbarState.Custom:
+                # 交给自定义 bossbar 显示者看
                 self.set_value(0)
                 self.set_name(f"等待{node_state.server_data['nickname']}启动")
-            case BossBarState.Starting:
-                self.set_value(75)
-                self.set_name(f"{node_state.server_data['nickname']}启动中")
-            case BossBarState.Started:
+            case BossbarState.Starting:
                 self.set_value(100)
+                self.set_name(f"{node_state.server_data['nickname']}启动中")
+            case BossbarState.Started:
+                self.set_value(125)
                 self.set_name(f"{node_state.server_data['nickname']}启动完毕")
 
     def close(self):
@@ -59,10 +63,10 @@ class RemoteBossbar:
 
     def exec(self, followed_cmd: str):
         try:
-            print(f"sending! {f'/bossbar {followed_cmd}'}")
+            self.logger.info(f"sending! {f'/bossbar {followed_cmd}'}")
             self.rcon.send_command(f"/bossbar {followed_cmd}")
-        except ConnectionError:
-            pass
+        except ConnectionError as e:
+            self.logger.error(f"failed to send: {e}")
 
     def set(self, followed_cmd: str):
         self.exec(f"set {self.ID} {followed_cmd}")
