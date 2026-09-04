@@ -42,17 +42,17 @@ class RemoteBossbar:
                 # 显示关闭 BossBar
                 self.set_max(100)
                 self.set_value(0)
-                self.set_name("服务器关闭中")
+                self.set_name(f"{node_state.server_data['nickname']}关闭中")
                 self.set_visible(True)
             case BossBarState.Custom:
                 self.set_value(0)
-                self.set_name("等待服务器启动")
+                self.set_name(f"等待{node_state.server_data['nickname']}启动")
             case BossBarState.Starting:
                 self.set_value(75)
-                self.set_name("服务器启动中")
+                self.set_name(f"{node_state.server_data['nickname']}启动中")
             case BossBarState.Started:
                 self.set_value(100)
-                self.set_name("服务器启动完毕")
+                self.set_name(f"{node_state.server_data['nickname']}启动完毕")
 
     def close(self):
         self.rcon.disconnect()
