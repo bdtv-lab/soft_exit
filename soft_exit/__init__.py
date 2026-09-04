@@ -85,5 +85,6 @@ def on_unload(server: mcdr.PluginServerInterface):
     logger = server.logger
 
     server._mcdr_server.stop = state.origin_stop
-    state.bossbar.close()
+    if state.enable:
+        state.bossbar.close()
     logger.info("unhooked server.stop")
